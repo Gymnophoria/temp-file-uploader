@@ -1,0 +1,25 @@
+.main {
+    margin: 0 auto;
+    width: 80%;
+}
+
+header {
+    text-align: center;
+}
+
+.upload-area {
+    width: 95%;
+    margin: 65px auto 0 auto;
+}
+
+#uploader {
+    border: 2px solid black;
+    border-radius: 6px;
+    background: none;
+    height: 200px;
+    padding: 30px;
+}
+
+.upload-area p {
+    margin: 0;
+}
