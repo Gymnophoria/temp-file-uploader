@@ -6,10 +6,11 @@
 
         <link href="index.css" rel="stylesheet">
     </head>
+
     <body>
         <div class="main">
             <header>
-                <h1>Temp file uploader</h1>
+                <h1>Temporary file uploader</h1>
                 <h3>A.K.A. "Can I just send this damn file to someone?"</h3>
             </header>
             <div class="upload-area">
@@ -17,6 +18,32 @@
                     <p><i>Drag files here or click to select from your system</i></p>
                 </div>
             </div>
+            <div class="files">
+                <ul id="files">
+
+                </ul>
+            </div>
+            <div class="submit-area">
+                <form id="form">
+                    <label>Expires in:
+                        <input type="number" id="expiry-quantity" name="expiry-quantity" autocomplete="off" min="1" value="2" required>
+                        <select id="expiry-units" name="expiry-units">
+                            <option value="m">minutes</option>
+                            <option value="h">hours</option>
+                            <option value="d" selected>days</option>
+                            <option value="w">weeks</option>
+                        </select>
+                    </label><br>
+                    <label>Password:
+                        <input id="password" name="password" autocomplete="off" required>
+                    </label>
+                    <br>
+                    <input id="upload-button" type="submit" value="Upload!">
+                </form>
+            </div>
+            <footer>
+                <p>Made with irritation by <a href="https://wumpler.com">Nikolas Brandt</a>. Enjoy.</p>
+            </footer>
         </div>
     </body>
 

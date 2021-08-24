@@ -8,6 +8,8 @@ uploader.addEventListener('dragover', dragOverHandler);
 uploader.addEventListener('dragleave', removeDragStyle);
 uploader.addEventListener('click', selectFiles);
 
+document.body.onfocus = removeDragStyle; // remove style when choose file dialog closed
+
 // on hover functionality while files dragged over
 function addDragStyle() {
     uploader.style.borderColor = '#ad3bff';
@@ -28,11 +30,14 @@ function removeDragStyle() {
 var input = document.createElement('input');
 input.type = 'file';
 input.multiple = 'multiple';
+input.form = 'form';
 
 input.onchange = function () {
-    removeDragStyle();
+    // removeDragStyle();
     var files = Array.from(input.files);
-    console.log(files);
+    for (var i = 0; i < files.length; i++) {
+        handleNewFile(files[i]);
+    }
 }
 
 function selectFiles() {
@@ -57,14 +62,13 @@ function dropHandler(event) {
         for (var i = 0; i < event.dataTransfer.items.length; i++) {
         // If dropped items aren't files, reject them
             if (event.dataTransfer.items[i].kind === 'file') {
-                var file = event.dataTransfer.items[i].getAsFile();
-                console.log('... file[' + i + '].name = ' + file.name);
+                handleNewFile(event.dataTransfer.items[i].getAsFile());
             }
         }
     } else {
         // Use DataTransfer interface to access the file(s) otherwise
         for (var i = 0; i < event.dataTransfer.files.length; i++) {
-            console.log('... file[' + i + '].name = ' + event.dataTransfer.files[i].name);
+            handleNewFile(event.dataTransfer.files[i]);
         }
     }
 }
@@ -75,3 +79,29 @@ function dragOverHandler(event) {
     // prevent default event, file being opened
     event.preventDefault();
 }
+
+// ---------------
+//  file handling
+// ---------------
+
+var files = [];
+var fileList = document.getElementById('files');
+
+function handleNewFile(file) {
+    var index = files.length;
+    files.push(file);
+
+    var li = document.createElement('li');
+    li.setAttribute('id', 'file' + index);
+    li.innerHTML = '<b>' + file.name + '</b> [<a href="#" onclick="removeFile('
+        + index + ')">remove</a>]';
+
+    fileList.appendChild(li);
+}
+
+function removeFile(index) {
+    files.splice(index, 1);
+    document.getElementById('file' + index).remove();
+}
+
+// https://www.w3schools.com/xml/ajax_xmlhttprequest_send.asp
