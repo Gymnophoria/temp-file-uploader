@@ -33,12 +33,15 @@
                             <option value="d" selected>days</option>
                             <option value="w">weeks</option>
                         </select>
-                    </label><br>
+                    </label>
+                    <span class="error" id="expiry-error" hidden>Files cannot be stored for more than 2 weeks.</span>
+                    <br>
                     <label>Password:
                         <input id="password" name="password" autocomplete="off" required>
-                    </label>
-                    <br>
+                    </label><br>
                     <input id="upload-button" type="submit" value="Upload!">
+                    <span class="error" id="filesize-error" hidden>No more than 2 GB of files per day.</span>
+                    <span class="error" id="nofiles-error" hidden>Select some files to upload, sheesh.</span>
                 </form>
             </div>
             <footer>

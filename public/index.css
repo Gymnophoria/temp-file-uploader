@@ -13,7 +13,7 @@ footer {
 
 .upload-area {
     width: 100%;
-    margin: 65px auto 40px auto;
+    margin: 65px auto 0 auto;
 }
 
 #uploader {
@@ -29,4 +29,13 @@ footer {
 
 #expiry-quantity {
     width: 40px;
+}
+
+.error {
+    color: red;
+    margin-left: 15px;
+}
+
+.submit-area {
+    line-height: 2;
 }
