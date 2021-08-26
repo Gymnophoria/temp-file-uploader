@@ -84,24 +84,33 @@ function dragOverHandler(event) {
 //  file handling
 // ---------------
 
+var SI_PREFIXES = [ '', 'K', 'M', 'G' ];
+
+function humanizeFilesize(size) {
+    for (var i = 0; i < SI_PREFIXES.length; i++) {
+        if (size < 1000) return size.toFixed(i < 2 ? 0 : 1) + ' ' + SI_PREFIXES[i] + 'B';
+        size /= 1000;
+    }
+}
+
 var fileCount = 0;
 var files = [];
 var fileList = document.getElementById('files');
 
 function handleNewFile(file) {
-    var id = fileCount++;
+    file.id = fileCount++;
     files.push(file);
 
     var li = document.createElement('li');
-    li.setAttribute('id', 'file' + id);
-    li.innerHTML = '<b>' + file.name + '</b> [<a href="#" onclick="removeFile('
-        + id + ')">remove</a>]';
+    li.setAttribute('id', 'file' + file.id);
+    li.innerHTML = '<b>' + file.name + '</b> (' + humanizeFilesize(file.size)
+        + ') [<a href="#" onclick="removeFile(' + file.id + ')">remove</a>]';
 
     fileList.appendChild(li);
 }
 
 function removeFile(id) {
-    files.splice(id, 1);
+    files.splice(id, 1); // TODO: fix this bad code, lol (remove by index of fileID, don't assume ID is correct index)
     document.getElementById('file' + id).remove();
 }
 
@@ -117,6 +126,7 @@ var expiryUnits = document.getElementById('expiry-units');
 var expiryError = document.getElementById('expiry-error');
 var fileSizeError = document.getElementById('filesize-error');
 var noFilesError = document.getElementById('nofiles-error');
+var expiryInMilliseconds;
 
 var ONE_MINUTE = 60 * 1000;
 var ONE_HOUR = 60 * ONE_MINUTE;
@@ -130,7 +140,7 @@ form.onsubmit = function(event) {
     event.preventDefault();
 
     if (checkFiles() && checkTime() && checkFileSize()) {
-        uploadFiles();
+        validateAccess();
     }
 
     return false;
@@ -156,7 +166,9 @@ function checkTime() {
             return false;
     }
 
-    return handleError(expiryError, expiryQuantity.value * multiplier > MAX_TIME);
+    expiryInMilliseconds = expiryQuantity.value * multiplier;
+
+    return handleError(expiryError, expiryInMilliseconds > MAX_TIME);
 }
 
 function checkFileSize() {
@@ -188,6 +200,93 @@ function handleError(element, hasError) {
 //  file uploading
 // ----------------
 
-function uploadFiles() {
-    console.log('uploading files beep boop bop');
+var passwordInput = document.getElementById('password');
+var uploadButton = document.getElementById('upload-button');
+var filesInProgress = {};
+
+function itemizeFiles() {
+    var out = [];
+
+    for (var i = 0; i < files.length; i++) {
+        out.push({
+            size: files[i].size,
+            name: files[i].name,
+            lastModified: files[i].lastModified
+        });
+    }
+
+    return out;
+}
+
+function disableSubmit() {
+    uploadButton.setAttributeNode(document.createAttribute('disabled'));
+}
+
+function enableSubmit() {
+    uploadButton.removeAttribute('disabled');
+}
+
+function validateAccess() { // TODO: show "validating" text until uploadFiles() is reached
+    var upload = {
+        expiry: expiryInMilliseconds,
+        password: passwordInput.value,
+        files: itemizeFiles()
+    }
+
+    var xhr = new XMLHttpRequest();
+
+    xhr.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            uploadFiles(this.response);
+        } else if (this.readyState == 4) {
+            console.log('Error validating! Status code: ' + this.status);
+            console.log(this.responseText);
+            // TODO: show user error
+        }
+    }
+
+    xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+    xhr.open('POST', '/validate', true);
+
+    xhr.send(JSON.stringify(upload));
+}
+
+function uploadFiles(response) { // response contains an array of keys to upload with
+    for (var i = 0; i < files.length; i++) {
+        // TODO: show "Uploading... " for % progress to show afterwards
+
+        var file = files[i];
+        var key = response[i];
+        filesInProgress[file.id] = file;
+
+        var xhr = new XMLHttpRequest();
+
+        xhr.onprogress = function(event) {
+            // TODO: show progress with event.loaded percentage on each file
+        }
+
+        xhr.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                onFinish(file, key);
+            } else if (this.readyState == 4) {
+                console.log('Error when uploading files with status ' + this.status);
+                console.log(this.responseText);
+            }
+        }
+
+        xhr.setRequestHeader('Content-Type', 'multipart/form-data');
+        xhr.open('POST', '/upload/' + key, true);
+
+        var formData = new FormData();
+        formData.append(file.name, file);
+
+        xhr.send(formData)
+    }
+
+    files = [];
+}
+
+function onFinish(file, key) {
+    // replace "Uploading..." text with URL to download
+    // remove file from filesInProgress
 }

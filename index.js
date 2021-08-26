@@ -9,9 +9,13 @@ if (!fs.existsSync(path.join('.', 'files'))) fs.mkdirSync(path.join('.', 'files'
 
 const app = express();
 
+app.post('validate', (req, res, next) => {
+
+});
+
 app.use('/', express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.listen(PORT, () => {
     console.log(`Started on ${PORT}.`);
-})
+});
