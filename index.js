@@ -1,21 +1,3 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const fs = require('fs');
-const path = require('path');
+const Server = require('./modules/Server');
 
-const PORT = 8080;
-
-if (!fs.existsSync(path.join('.', 'files'))) fs.mkdirSync(path.join('.', 'files'));
-
-const app = express();
-
-app.post('validate', (req, res, next) => {
-
-});
-
-app.use('/', express.static('public'));
-app.use(bodyParser.urlencoded({ extended: true }));
-
-app.listen(PORT, () => {
-    console.log(`Started on ${PORT}.`);
-});
+new Server();

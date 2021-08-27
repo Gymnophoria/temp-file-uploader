@@ -114,8 +114,6 @@ function removeFile(id) {
     document.getElementById('file' + id).remove();
 }
 
-// https://www.w3schools.com/xml/ajax_xmlhttprequest_send.asp
-
 // -------------------
 //  upload validation
 // -------------------
@@ -245,8 +243,11 @@ function validateAccess() { // TODO: show "validating" text until uploadFiles() 
         }
     }
 
-    xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
     xhr.open('POST', '/validate', true);
+    xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+
+    console.log('sending..');
+    console.log(upload);
 
     xhr.send(JSON.stringify(upload));
 }
@@ -267,15 +268,15 @@ function uploadFiles(response) { // response contains an array of keys to upload
 
         xhr.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
-                onFinish(file, key);
+                onFinish(file, this);
             } else if (this.readyState == 4) {
                 console.log('Error when uploading files with status ' + this.status);
                 console.log(this.responseText);
             }
         }
 
-        xhr.setRequestHeader('Content-Type', 'multipart/form-data');
         xhr.open('POST', '/upload/' + key, true);
+        xhr.setRequestHeader('Content-Type', 'multipart/form-data');
 
         var formData = new FormData();
         formData.append(file.name, file);
@@ -286,7 +287,9 @@ function uploadFiles(response) { // response contains an array of keys to upload
     files = [];
 }
 
-function onFinish(file, key) {
+function onFinish(file, response) {
+    console.log('Uploaded: ');
+    console.log(response);
     // replace "Uploading..." text with URL to download
     // remove file from filesInProgress
 }
